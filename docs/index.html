@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0d1113">
+<meta name="description" content="校园地图导航系统：C 语言 + EasyX 实现的图论路径规划课程设计，状态扩展 Dijkstra、真实路网标定、多模式出行与数据持久化。">
+<title>校园地图导航系统 / CAMPUS NAVIGATION SYSTEM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/components.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true"><span>N</span></span>
+      <span>
+        <span class="brand__name">CAMPUS / NAV</span>
+        <span class="brand__sub">C + EASYX · 2026.08</span>
+      </span>
+    </div>
+    <nav class="nav" aria-label="页面导航">
+      <a href="#highlights">亮点</a>
+      <a href="#algorithm">算法</a>
+      <a href="#gallery">界面</a>
+      <a href="#architecture">结构</a>
+      <a href="#resume">简历文案</a>
+      <a href="https://github.com/wuhaha-l/campus-nav" target="_blank" rel="noopener">GitHub 仓库 ↗</a>
+    </nav>
+    <a class="btn btn--ghost btn--sm" href="assets/gui.cpp" download>下载源码</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- 首屏：左标题 / 右截图，截图向右溢出栅格 -->
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="wrap hero__grid">
+      <div>
+        <div class="hero__kicker reveal"><span class="eyebrow">PROJECT 01 / 数据结构与图算法实践</span></div>
+        <h1 class="hero__title reveal" data-delay="1" id="hero-title">校园地图<br><em>导航系统</em></h1>
+        <span class="hero__code reveal" data-delay="2">CAMPUS NAVIGATION SYSTEM — C / EASYX / DIJKSTRA</span>
+        <p class="hero__lede reveal" data-delay="3">以郑州大学主校区为背景，把 28 个地点与道路路口建模成带权无向图，按通行时间求最快路线。点击地图选起终点，5 种出行方式，路线沿真实道路折线红色高亮。</p>
+        <div class="hero__actions reveal" data-delay="4">
+          <a class="btn" href="#algorithm">查看算法对照台</a>
+          <a class="btn btn--ghost" href="#resume">复制简历文案</a>
+        </div>
+      </div>
+      <div class="shot reveal" data-delay="2">
+        <div class="shot__frame">
+          <span class="corner corner--tl" aria-hidden="true"></span>
+          <span class="corner corner--br" aria-hidden="true"></span>
+          <span class="shot__tag">LIVE UI / 1020×700</span>
+          <img src="assets/main-ui.png" alt="校园地图导航系统主界面：顶部功能按钮、彩色地点标记与左下角图例" width="1020" height="700">
+        </div>
+        <div class="shot__caption"><span>图 01 — 主界面，摘自课程设计报告</span><span>28 PLACES / 5 MODES</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" aria-label="关键指标">
+    <div class="metrics reveal">
+      <div class="metric"><span class="metric__num">2100<em>+</em></span><span class="metric__label">行 C 语言源码</span><span class="metric__note">VS /W3 零警告</span></div>
+      <div class="metric"><span class="metric__num">28</span><span class="metric__label">个校园地点</span><span class="metric__note">含 4 个地铁口</span></div>
+      <div class="metric"><span class="metric__num">05</span><span class="metric__label">种出行方式</span><span class="metric__note">步行 / 骑行 / 驾车 / 电动车 / 地铁</span></div>
+      <div class="metric"><span class="metric__num">276</span><span class="metric__label">对地点两两可达</span><span class="metric__note">Python 脚本自动回归</span></div>
+    </div>
+  </section>
+
+  <!-- 亮点：横向规则行，避免通用三卡片 -->
+  <section class="section" id="highlights" aria-labelledby="highlights-title">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <span class="section__index">01 / WHAT</span>
+        <h2 class="section__title" id="highlights-title">技术亮点</h2>
+        <p class="section__desc">不堆功能清单，只列值得在面试里展开的设计取舍。每条都能对应到源码里的一个函数或数据文件。</p>
+      </div>
+      <div class="features">
+        <div class="feature reveal"><span class="feature__no">01</span><span class="feature__title">邻接表图建模</span><span class="feature__body">地点与路口共同作为顶点，边带 <code>dist / time / metro</code> 三个属性；校园路网是稀疏图，空间 O(n+m)，松弛时只遍历邻接链表。</span><span class="feature__tag">DATA STRUCTURE</span></div>
+        <div class="feature reveal"><span class="feature__no">02</span><span class="feature__title">状态扩展 Dijkstra</span><span class="feature__body">状态从「节点」扩展为 <code>(来路, 节点)</code>，用叉积判断转向并加 0.5 秒罚时，消除等耗时路径在网格路网里的锯齿绕路。</span><span class="feature__tag">CORE ALGORITHM</span></div>
+        <div class="feature reveal"><span class="feature__no">03</span><span class="feature__title">真实路网标定</span><span class="feature__body">沿弯曲道路描点生成折线，端点按 8px 半径吸附到已有路口、中间点生成新路口，避免路线直穿楼体；绘制时沿折线还原弯路。</span><span class="feature__tag">GEOMETRY</span></div>
+        <div class="feature reveal"><span class="feature__no">04</span><span class="feature__title">地铁分层与换乘</span><span class="feature__body">地铁边带 <code>metro</code> 标记，仅在地铁方式下松弛；4 个地铁口经最近校门接入校园路网，形成「校内 → 校门 → 地铁」动线。</span><span class="feature__tag">MULTI-MODAL</span></div>
+        <div class="feature reveal"><span class="feature__no">05</span><span class="feature__title">数据驱动与持久化</span><span class="feature__body">14 个 UTF-8 <code>.dat</code> 文件驱动地图、图书与美食；写回采用「临时文件重写 + rename」，收藏与历史按学号隔离多用户。</span><span class="feature__tag">ENGINEERING</span></div>
+        <div class="feature reveal"><span class="feature__no">06</span><span class="feature__title">自动化回归</span><span class="feature__body">Python 脚本断言 276 对地点两两可达、5 条地铁边与地铁口连通；BFS 检测孤立点与断头路口；全程保持 /W3 零警告编译。</span><span class="feature__tag">VERIFICATION</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 记忆点：可交互的算法对照台 -->
+  <section class="section" id="algorithm" aria-labelledby="algorithm-title">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <span class="section__index">02 / HOW</span>
+        <h2 class="section__title" id="algorithm-title">等时路径，为什么不能随便挑一条</h2>
+        <p class="section__desc">切换算法版本，看同一组起终点在网格路网里的两条等长路径。基础通行时间相同，差别只在转向次数。</p>
+      </div>
+      <div class="console reveal">
+        <div class="console__main">
+          <div class="console__toolbar">
+            <span class="console__title">ROUTE CONSOLE / OD: S → E</span>
+            <div class="seg" role="group" aria-label="选择算法版本">
+              <button type="button" data-mode="standard" aria-pressed="true">标准 Dijkstra</button>
+              <button type="button" data-mode="extended" aria-pressed="false">状态扩展 + 罚时</button>
+            </div>
+          </div>
+          <svg class="diagram" data-mode="standard" viewBox="0 0 480 260" role="img" aria-labelledby="diagram-title diagram-desc">
+            <title id="diagram-title">网格路网中的两条等长路径对照</title>
+            <desc id="diagram-desc">灰色锯齿路线转向 4 次；橙色路线先纵向再横向，转向 1 次。两者基础通行长度相同。</desc>
+            <g class="grid-line" aria-hidden="true">
+              <line x1="40" y1="40" x2="40" y2="230"/><line x1="120" y1="40" x2="120" y2="230"/>
+              <line x1="200" y1="40" x2="200" y2="230"/><line x1="280" y1="40" x2="280" y2="230"/>
+              <line x1="360" y1="40" x2="360" y2="230"/><line x1="440" y1="40" x2="440" y2="230"/>
+              <line x1="20" y1="100" x2="460" y2="100"/><line x1="20" y1="160" x2="460" y2="160"/>
+              <line x1="20" y1="220" x2="460" y2="220"/>
+            </g>
+            <g aria-hidden="true">
+              <circle class="node" cx="40" cy="100" r="3"/><circle class="node" cx="120" cy="100" r="3"/><circle class="node" cx="200" cy="100" r="3"/><circle class="node" cx="280" cy="100" r="3"/><circle class="node" cx="360" cy="100" r="3"/>
+              <circle class="node" cx="40" cy="160" r="3"/><circle class="node" cx="120" cy="160" r="3"/><circle class="node" cx="200" cy="160" r="3"/><circle class="node" cx="280" cy="160" r="3"/><circle class="node" cx="360" cy="160" r="3"/>
+              <circle class="node" cx="120" cy="220" r="3"/><circle class="node" cx="200" cy="220" r="3"/><circle class="node" cx="280" cy="220" r="3"/><circle class="node" cx="360" cy="220" r="3"/>
+            </g>
+            <polyline class="route route--jagged" points="40,220 200,220 200,160 360,160 360,100 440,100"/>
+            <polyline class="route route--direct" points="40,220 40,100 440,100"/>
+            <circle class="node--end" cx="40" cy="220" r="7"/>
+            <circle class="node--end" cx="440" cy="100" r="7"/>
+            <text class="pin-label" x="18" y="246">S</text>
+            <text class="pin-label" x="446" y="88">E</text>
+          </svg>
+        </div>
+        <div class="console__readout">
+          <div class="readout__row"><span class="readout__key">基础通行耗时</span><span class="readout__val">12.0 s</span></div>
+          <div class="readout__row"><span class="readout__key">转向次数</span><span class="readout__val" id="readout-turns">4 次</span></div>
+          <div class="readout__row"><span class="readout__key">转弯罚时合计</span><span class="readout__val" id="readout-penalty">0.0 s</span></div>
+          <div class="readout__row"><span class="readout__key">评价耗时（含罚时）</span><span class="readout__val readout__val--accent" id="readout-total">12.0 s</span></div>
+          <p class="readout__note" id="readout-verdict">标准 Dijkstra 只记录「到达某节点的最短时间」。<strong>两条路径评价耗时相同，先被松弛到的那条会被保留</strong>，结果可能是在网格里来回拐弯的锯齿路线。</p>
+          <p class="readout__foot">示意数值 / 基础长度均为 520 单位 / 罚时只用于排序，不改变真实通行时间</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 界面与底图 -->
+  <section class="section" id="gallery" aria-labelledby="gallery-title">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <span class="section__index">03 / VIEW</span>
+        <h2 class="section__title" id="gallery-title">界面与底图</h2>
+        <p class="section__desc">程序用 EasyX 绘制 1020×700 窗口，批量绘制消除闪烁，中文统一走宽字符绘制函数。</p>
+      </div>
+      <div class="gallery">
+        <figure class="reveal">
+          <div class="gallery__frame"><img src="assets/main-ui.png" alt="主界面完整截图：顶部搜索、收藏、美食按钮，地图中的彩色地点标记与左下角图例" width="1020" height="700" loading="lazy"></div>
+          <figcaption>图 01 — 主界面。顶部 5 个功能按钮、右上登录入口，左下角按类型区分地点颜色。<span>CAPTURED FROM COURSE DESIGN REPORT</span></figcaption>
+        </figure>
+        <figure class="reveal" data-delay="1">
+          <div class="gallery__frame gallery__frame--map"><img src="assets/campus-map.jpg" alt="校园实景地图底图，用于地点与路口坐标标定" width="600" height="984" loading="lazy"></div>
+          <figcaption>图 02 — 实景地图底图（缩放预览）。地点坐标与道路折线均在这张图上标定。<span>MAP.JPG / CALIBRATION BASE</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 架构与数据 -->
+  <section class="section" id="architecture" aria-labelledby="architecture-title">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <span class="section__index">04 / BUILD</span>
+        <h2 class="section__title" id="architecture-title">结构与数据</h2>
+        <p class="section__desc">三层结构通过函数接口解耦；数据文件与可执行文件必须同级，程序启动时加载并建图。</p>
+      </div>
+      <div class="arch">
+        <div class="reveal">
+          <div class="layer"><span class="layer__no">LAYER 01</span><h3 class="layer__title">界面交互层</h3><p class="layer__body">主循环分发鼠标 / 键盘事件：地图拖拽、地点拾取、按钮悬停、弹窗输入。</p></div>
+          <div class="layer"><span class="layer__no">LAYER 02</span><h3 class="layer__title">业务功能层</h3><p class="layer__body">搜索、导航、探索、收藏、账号、图书、美食、路网质检各自成模块。</p></div>
+          <div class="layer"><span class="layer__no">LAYER 03</span><h3 class="layer__title">数据存储层</h3><p class="layer__body">UTF-8 文本以「|」分隔，临时文件重写后 rename；按学号隔离用户数据。</p></div>
+        </div>
+        <div class="reveal" data-delay="1">
+          <table class="filetable">
+            <thead><tr><th>核心文件</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td>gui.cpp</td><td>全部源码，约 2100 行</td></tr>
+              <tr><td>places.dat</td><td>28 个地点：编号 / 名称 / 类型 / 热度</td></tr>
+              <tr><td>coords.dat</td><td>地点在底图上的标定坐标</td></tr>
+              <tr><td>junctions.dat</td><td>道路路口坐标</td></tr>
+              <tr><td>roads_custom.dat</td><td>沿真实道路描出的折线，防止路线穿楼</td></tr>
+              <tr><td>roads.dat</td><td>地点直达关系与距离 / 耗时</td></tr>
+              <tr><td>place_junctions.dat</td><td>地点与最近路口的关联</td></tr>
+              <tr><td>books.dat / foods.dat</td><td>70 本图书、49 条园区美食</td></tr>
+              <tr><td>map.jpg</td><td>校园实景底图</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 简历文案：一键复制，直接用于 BOSS 直聘 -->
+  <section class="section" id="resume" aria-labelledby="resume-title">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <span class="section__index">05 / COPY</span>
+        <h2 class="section__title" id="resume-title">项目经历文案</h2>
+        <p class="section__desc">按 BOSS 直聘「项目经历」字段整理，点击复制后可直接粘贴；投不同岗位时按下方提示微调。</p>
+      </div>
+      <div class="resume reveal">
+        <div class="resume__bar">
+          <span class="resume__label">项目名称：校园地图导航系统 ｜ 2026.08 ｜ 独立开发</span>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <span class="copy-status" id="copy-status" role="status" aria-live="polite"></span>
+            <button class="btn btn--sm" type="button" id="copy-btn">复制这段文案</button>
+          </div>
+        </div>
+        <pre id="resume-text">项目描述：针对校园内部步行路网不被主流导航覆盖的问题，以郑州大学主校区实景地图为背景，将 28 个地点与道路路口建模为带权无向图，实现点击式路线规划、模糊搜索、多用户收藏/历史、图书借阅等模块，交付可独立运行程序与完整设计报告（2100+ 行源码）。
+
+1. 用邻接表建图（边含距离/耗时/地铁标记），实现按时间加权的 Dijkstra 最快路径；将状态扩展为「(来路, 节点)」并引入转弯罚时，解决等耗时路径锯齿绕路问题，支持步行/骑行/驾车/电动车/地铁 5 种方式。
+2. 沿真实道路做折线标定 + 8px 路口吸附，避免路线直穿楼体；为 4 个地铁口挂校门中转边，把校内动线接入 5 段地铁线路。
+3. 设计 14 个 UTF-8 数据文件与「临时文件重写」安全写回，按学号隔离多用户收藏、历史、借阅数据；统一宽字符绘制解决中文乱码。
+4. 编写 Python 脚本自动回归路网连通性（276 对地点两两可达），配合 BFS 检测孤立点/断头路口，保持 VS /W3 零警告编译。
+
+技术栈：C 语言、EasyX、邻接表、Dijkstra（状态扩展）、BFS、UTF-8 文件持久化、Visual Studio、Python 回归脚本。</pre>
+        <p class="resume__hint">投 C/C++、算法岗：放大第 1、4 条。投 Java 后端：突出第 3 条的分层与持久化，并建议补一个 Spring Boot 接口版再写进简历。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 下载 -->
+  <section class="section" id="downloads" aria-labelledby="downloads-title">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <span class="section__index">06 / FILES</span>
+        <h2 class="section__title" id="downloads-title">源码与文档</h2>
+        <p class="section__desc">可执行文件需与 .dat 数据文件、map.jpg 放在同一目录才能运行。</p>
+      </div>
+      <div class="downloads">
+        <a class="dl reveal" href="assets/gui.cpp" download><span class="dl__kind">SOURCE</span><span class="dl__name">gui.cpp</span><span class="dl__meta">87 KB / 2100+ 行</span></a>
+        <a class="dl reveal" data-delay="1" href="assets/design-report.docx" download><span class="dl__kind">REPORT</span><span class="dl__name">课程设计报告</span><span class="dl__meta">DOCX / 需求·算法·测试用例</span></a>
+        <a class="dl reveal" data-delay="2" href="assets/gui.exe" download><span class="dl__kind">BINARY</span><span class="dl__name">gui.exe</span><span class="dl__meta">WINDOWS / 双击运行</span></a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <div>
+      <p class="footer__title">CAMPUS / NAV</p>
+      <p class="footer__meta">C 语言 + EasyX ｜ 邻接表 ｜ 状态扩展 Dijkstra ｜ BFS 质检 ｜ UTF-8 数据持久化<br>郑州大学「高级语言课程设计」个人作品，2026.08。仅供学习与作品展示。</p>
+    </div>
+    <p class="footer__stamp">BUILD 2026.08 / STATUS: W3 ZERO WARNING<br>ROUTE ENGINE: TIME-WEIGHTED DIJKSTRA</p>
+  </div>
+</footer>
+
+<script src="scripts/main.js" defer></script>
+</body>
+</html>

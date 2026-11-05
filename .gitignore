@@ -1,0 +1,27 @@
+# 运行时生成的个人数据：含学号、口令与历史记录，禁止提交到公开仓库
+users.dat
+favorites.dat
+search_history.dat
+nav_history.dat
+borrows.dat
+feedback.txt
+
+# 编辑器 / 系统临时文件
+~$*
+Thumbs.db
+.DS_Store
+*.tmp
+
+# VS 构建中间产物
+*.obj
+*.o
+*.pdb
+*.ilk
+*.idb
+*.tlog
+.vs/
+Debug/
+Release/
+
+# 说明：gui.exe 为已编译产物，保留在仓库中便于直接双击运行；
+# 如不想提交二进制，可加入 *.exe 并改用 GitHub Release 分发。
